@@ -56,7 +56,10 @@ int get_device_fb(const char* path, struct fb *fb)
     int fd;
 
     fd = open(path, O_RDONLY);
-    if (fd < 0) return -1;
+    if (fd < 0) {
+      D("open failed, %s", strerror(errno));
+      return -1;
+    }
 
     if(ioctl(fd, FBIOGET_VSCREENINFO, &vinfo) < 0) {
         D("ioctl failed, %s", strerror(errno));
@@ -179,7 +182,7 @@ oops:
     return -1;
 }
 
-int fb2png(const char *path)
+int fb2png(int format, const char *path)
 {
     struct fb fb;
     int ret;
@@ -195,5 +198,5 @@ int fb2png(const char *path)
         return -1;
     }
 
-    return fb_save_png(&fb, path);
+    return fb_save_image(format, &fb, path);
 }

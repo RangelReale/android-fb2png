@@ -145,7 +145,7 @@ static int get_fb_from_adb(struct fb *fb)
     bytes_read = adb_read(buf, sizeof(struct fbinfo));
     if (bytes_read <= 0 ||
         (unsigned int)bytes_read < sizeof (struct fbinfo)) {
-        E("Failed to read the FB Info data!", strerror(errno));
+        E("Failed to read the FB Info data! %s", strerror(errno));
         return -1;
     }
 
@@ -184,7 +184,7 @@ int fb2png(const char* path)
         return -1;
     }
 
-    return fb_save_png(&fb, path);
+    return fb_save_image(0, &fb, path);
 }
 
 int main(int argc, char *argv[])

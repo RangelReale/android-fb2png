@@ -81,4 +81,6 @@ int rgba8888_to_rgb888(const char* src, char* dst, size_t pixel);
 
 int save_png(const char* path, const char* data, int width, int height);
 
+int save_jpeg(const char* path, const char* data, int width, int height);
+
 #endif

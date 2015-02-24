@@ -26,6 +26,7 @@
 #include "log.h"
 #include "fb.h"
 #include "img_process.h"
+#include "fb2png.h"
 
 // log fb info
 void fb_dump(const struct fb* fb)
@@ -84,7 +85,7 @@ static int fb_get_format(const struct fb *fb)
     return FB_FORMAT_UNKNOWN;
 }
 
-int fb_save_png(const struct fb *fb, const char *path)
+int fb_save_image(int format, const struct fb *fb, const char *path)
 {
     char *rgb_matrix;
     int ret = -1;
@@ -131,7 +132,10 @@ int fb_save_png(const struct fb *fb, const char *path)
         E("Error while processing input image.");
     } else {
         /* Save in PNG format. */
-        ret = save_png(path, rgb_matrix, fb->width, fb->height);
+        if (format == OUT_FORMAT_JPEG)
+           ret = save_jpeg(path, rgb_matrix, fb->width, fb->height);
+        else
+           ret = save_png(path, rgb_matrix, fb->width, fb->height);
         if (ret != 0)
             E("Failed to save in PNG format.");
     }

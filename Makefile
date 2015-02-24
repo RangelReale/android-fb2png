@@ -3,8 +3,8 @@
 #CC := arm-linux-androideabi-gcc
 #STRIP := arm-linux-androideabi-strip
 #WFLAGS += -Wall -Wextra -Wno-write-strings
-#CFLAGS += $(WFLAGS) -O2 -static -DANDROID
-#LDFLAGS += -lpng -lz -lm
+#CFLAGS += $(WFLAGS) -O2 -DANDROID
+#LDFLAGS += -lpng -ljpeg -lz -lm -llog
 #
 # Path to toolchain
 #PATH := /root/Desktop/build_cm10/ndk_toolchain/bin:$(PATH)
@@ -13,7 +13,7 @@
 CC := gcc
 STRIP := strip
 CFLAGS += -g
-LDFLAGS += -lpng
+LDFLAGS += -lpng -ljpeg
 
 
 OBJECTS += fb2png adb_screenshoot

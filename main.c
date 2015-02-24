@@ -27,11 +27,14 @@
 #include "fb2png.h"
 
 #ifdef ANDROID
-    #define DEFAULT_SAVE_PATH "/data/local/fbdump.png"
+    #define DEFAULT_SAVE_PNG_PATH "/data/local/fbdump.png"
+    #define DEFAULT_SAVE_JPEG_PATH "/data/local/fbdump.jpg"
 #else
-    #define DEFAULT_SAVE_PATH "fbdump.png"
+    #define DEFAULT_SAVE_PNG_PATH "fbdump.png"
+    #define DEFAULT_SAVE_JPEG_PATH "fbdump.jpg"
 #endif
 
+int out_format = OUT_FORMAT_PNG;
 
 void print_version() {
     printf(
@@ -50,6 +53,7 @@ int print_usage() {
         "Usage: fb2png [-option=][path/to/output.png]\n"
         "   The default output path is /data/local/fbdump.png\n"
         "Options: \n"
+	"   -format=png  png jpeg\n"
         "   -buffer=n  0:single 1:double... buffering (default=auto detect)\n"
         "\n"
     );
@@ -59,6 +63,7 @@ int print_usage() {
 
 int parse_options(const char* option) {
     char buffer_opt[] = "-buffer=";
+    char format_opt[] = "-format=";
     int found_option = 0;
     int value;
 
@@ -71,6 +76,14 @@ int parse_options(const char* option) {
             printf("Invalid buffer option (%d)\n", value);
             found_option = -1;
         }
+    } else if (strncmp(option, format_opt, strlen(format_opt)) == 0) {
+        char *svalue = (char*)(option + strlen(format_opt));
+	if (strncmp(svalue, "jpeg", 4) == 0) {
+	  out_format = OUT_FORMAT_JPEG;
+	} else {
+	  out_format = OUT_FORMAT_PNG;
+	}
+	found_option = 1;
     } else if (strcmp(option, "-help") == 0 || strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0) {
         // print help and exit
         found_option = -1;
@@ -99,7 +112,12 @@ int main(int argc, char **argv)
         return print_usage();
 
     if (path == NULL)
-        path = DEFAULT_SAVE_PATH;
+    {
+	if (out_format == OUT_FORMAT_JPEG)
+	  path = DEFAULT_SAVE_JPEG_PATH;
+	else
+	  path = DEFAULT_SAVE_PNG_PATH;
+    }
 
     if (strlen(path) >= PATH_MAX) {
         printf("Output path too long!\n");
@@ -107,14 +125,15 @@ int main(int argc, char **argv)
     }
 
     print_version();
-    printf("%s -buffer=%d%s %s\n",
+    printf("%s -buffer=%d%s -format=%d %s\n",
             argv[0],
             user_set_buffers_num,
             user_set_buffers_num < 0 ? " (auto)" : "",
+	    out_format,
             path
     );
 
-    ret = fb2png(path);
+    ret = fb2png(out_format, path);
     if (!ret)
         printf("Image saved to %s\n", path);
 

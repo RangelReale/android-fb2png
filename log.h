@@ -25,7 +25,7 @@
 #ifdef ANDROID
 
 #ifndef LOG_TAG
-#define LOG_TAG "tag"
+#define LOG_TAG "fb2png"
 #endif
 
 #include <android/log.h>

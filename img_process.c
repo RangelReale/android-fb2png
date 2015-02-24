@@ -19,7 +19,10 @@
  */
 
 #include <errno.h>
+#include <stdlib.h>
 #include <png.h>
+#include <jpeglib.h>
+#include <jerror.h>
 
 #include "fb.h"
 #include "img_process.h"
@@ -251,4 +254,55 @@ oops:
     fclose(fp);
     free (rows);
     return -1;
+}
+
+/* save rgb888 to png format in fp */
+int save_jpeg(const char* path, const char* data, int width, int height)
+{
+    FILE *fp;
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    JSAMPROW row_pointer[1];
+    int row_stride;               /* physical row width in image buffer */
+
+    fp = fopen(path, "w");
+    if (!fp) {
+        int errsv = errno;
+        E("Cannot open file %s for writing.\n", path);
+        return errsv;
+    }
+
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+
+    jpeg_stdio_dest(&cinfo, fp);
+    
+    cinfo.image_width = width;
+    cinfo.image_height = height;
+    cinfo.input_components = 3;
+    cinfo.in_color_space = JCS_RGB;
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_quality(&cinfo, 80, TRUE /* limit to baseline-JPEG values */);
+    
+    jpeg_start_compress(&cinfo, TRUE);
+    
+    row_stride = width * 3;
+
+
+    while (cinfo.next_scanline < cinfo.image_height) {
+      /* jpeg_write_scanlines expects an array of pointers to scanlines.
+      * Here the array is only one element long, but you could pass
+      * more than one scanline at a time if that's more convenient.
+      */
+      row_pointer[0] = & data[cinfo.next_scanline * row_stride];
+      (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+
+    jpeg_finish_compress(&cinfo);
+    
+    fclose(fp);
+    
+    jpeg_destroy_compress(&cinfo);    
+    
+    return 0;
 }

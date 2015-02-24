@@ -21,10 +21,13 @@
 #ifndef __FB2PNG_H__
 #define __FB2PNG_H__
 
+#define OUT_FORMAT_PNG	0
+#define OUT_FORMAT_JPEG	1
+
 #define MAX_ALLOWED_FB_BUFFERS 3
 
 extern int user_set_buffers_num;
 
-int fb2png(const char *path);
+int fb2png(int format, const char *path);
 
 #endif
