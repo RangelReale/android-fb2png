@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "fb2png.h"
+#include "log.h"
 
 #ifdef ANDROID
     #define DEFAULT_SAVE_PNG_PATH "/data/local/fbdump.png"
@@ -37,7 +38,7 @@
 int out_format = OUT_FORMAT_PNG;
 
 void print_version() {
-    printf(
+    D(
         "\n"
         "Android Screenshooter - fb2png\n"
         "Author: Kyan He <kyan.ql.he@gmail.com>\n"
@@ -49,7 +50,7 @@ void print_version() {
 
 int print_usage() {
     print_version();
-    printf(
+    D(
         "Usage: fb2png [-option=][path/to/output.png]\n"
         "   The default output path is /data/local/fbdump.png\n"
         "Options: \n"
@@ -73,7 +74,7 @@ int parse_options(const char* option) {
             user_set_buffers_num = value;
             found_option = 1;
         } else {
-            printf("Invalid buffer option (%d)\n", value);
+            D("Invalid buffer option (%d)\n", value);
             found_option = -1;
         }
     } else if (strncmp(option, format_opt, strlen(format_opt)) == 0) {
@@ -120,12 +121,12 @@ int main(int argc, char **argv)
     }
 
     if (strlen(path) >= PATH_MAX) {
-        printf("Output path too long!\n");
+        D("Output path too long!\n");
         return -1;
     }
 
     print_version();
-    printf("%s -buffer=%d%s -format=%d %s\n",
+    D("%s -buffer=%d%s -format=%d %s\n",
             argv[0],
             user_set_buffers_num,
             user_set_buffers_num < 0 ? " (auto)" : "",
@@ -135,7 +136,7 @@ int main(int argc, char **argv)
 
     ret = fb2png(out_format, path);
     if (!ret)
-        printf("Image saved to %s\n", path);
+        D("Image saved to %s\n", path);
 
     return ret;
 }
